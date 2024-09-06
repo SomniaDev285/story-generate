@@ -20,7 +20,7 @@ const App = () => {
     petCompanion: ''
   });
 
-  const openAiApiKey = process.env.OPENAI_API_KEY;
+  const ApiKey = process.env.API_KEY;
   const stabilityApiKey = process.env.STABILITY_API_KEY;
 
   const [theme, setTheme] = useState('Adventure');
@@ -63,7 +63,7 @@ const App = () => {
         },
         {
           headers: {
-            'Authorization': `Bearer ${openAiApiKey}`,
+            'Authorization': `Bearer ${ApiKey}`,
             'Content-Type': 'application/json'
           }
         }
