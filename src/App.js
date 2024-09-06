@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { TextField, MenuItem, Button, Typography, Grid, Card, CardContent, CardMedia, LinearProgress, Box, Skeleton, CircularProgress } from '@mui/material';
 import axios from 'axios';
+// require('dotenv').config();
 
 const App = () => {
   const [avatar, setAvatar] = useState({
@@ -18,6 +19,9 @@ const App = () => {
     personalityTraits: [],
     petCompanion: ''
   });
+
+  const openAiApiKey = process.env.OPENAI_API_KEY;
+  const stabilityApiKey = process.env.STABILITY_API_KEY;
 
   const [theme, setTheme] = useState('Adventure');
   const [format, setFormat] = useState('Ebook');
@@ -59,7 +63,7 @@ const App = () => {
         },
         {
           headers: {
-            'Authorization': `Bearer sk-NRMq9gSUROSh-f0GwFB1cEkfxe26n52qYcXrn8MB1IT3BlbkFJuqa0qtMcYL_An31BcUpSJfV3XptUdhyN0h-H658GcA`,
+            'Authorization': `Bearer ${openAiApiKey}`,
             'Content-Type': 'application/json'
           }
         }
@@ -70,10 +74,9 @@ const App = () => {
       // Step 2: Generate the images using DALL-E
       const engineId = 'stable-diffusion-v1-6';
       const url = `https://api.stability.ai/v1/generation/${engineId}/text-to-image`;
-      const apiKey = 'sk-6r8dnEDZRQdYcBNjfJ46mg4dtTLR7HZv1fNsYe6ckL6B8YnV';
 
       const headers = {
-        'Authorization': `Bearer ${apiKey}`,
+        'Authorization': `Bearer ${stabilityApiKey}`,
         'Content-Type': 'application/json',
         'Accept': 'application/json'
       };
