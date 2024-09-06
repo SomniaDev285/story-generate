@@ -59,7 +59,6 @@ const App = () => {
             { role: "system", content: "You are a child's story generator" },
             { role: "user", content: prompt }
           ],
-          max_tokens: 500
         },
         {
           headers: {
