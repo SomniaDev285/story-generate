@@ -20,8 +20,8 @@ const App = () => {
     petCompanion: ''
   });
 
-  const ApiKey = process.env.API_KEY;
-  const stabilityApiKey = process.env.STABILITY_API_KEY;
+  const ApiKey = process.env.REACT_APP_API_KEY;
+  const stabilityApiKey = process.env.REACT_APP_STABILITY_API_KEY;
 
   const [theme, setTheme] = useState('Adventure');
   const [format, setFormat] = useState('Ebook');
@@ -38,10 +38,11 @@ const App = () => {
     setAvatar((prevAvatar) => ({
       ...prevAvatar,
       personalityTraits: typeof value === 'string' ? value.split(',') : value,
-    }));
+    }))
   };
 
   const generateStory = async () => {
+    console.log(ApiKey)
     setLoading(true);
     setProgress(0);
     setStory([]); // Clear previous story
