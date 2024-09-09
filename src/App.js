@@ -42,14 +42,13 @@ const App = () => {
   };
 
   const generateStory = async () => {
-    console.log(ApiKey)
     setLoading(true);
     setProgress(0);
     setStory([]); // Clear previous story
     try {
       const prompt = `Create a short children's story that is divided into 5 related parts. 
         Each part should continue the previous one, forming a complete narrative. 
-        Write each part as a single sentence. The hero is ${avatar.gender}. The theme is ${theme}. Must separate all parts using @.`;
+        Write each part as a single sentence. The hero is ${avatar.gender}. The theme is ${theme}. Must separate all parts using @`;
 
       // Call OpenAI GPT-4 API to generate story
       const storyResponse = await axios.post(
@@ -69,8 +68,10 @@ const App = () => {
         }
       );
 
-      const sentences = storyResponse.data.choices[0].message.content.split("@").filter(line => line.trim() !== "");
 
+      console.log(storyResponse.data.choices[0].message.content);
+      const sentences = storyResponse.data.choices[0].message.content.split("@").filter(line => line.trim() !== "");
+      
       // Step 2: Generate the images using DALL-E
       const engineId = 'stable-diffusion-v1-6';
       const url = `https://api.stability.ai/v1/generation/${engineId}/text-to-image`;
