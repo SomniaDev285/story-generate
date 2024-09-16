@@ -1,30 +1,42 @@
-import React, { useState } from 'react';
-import { TextField, MenuItem, Button, Typography, Grid, Card, CardContent, CardMedia, LinearProgress, Box, Skeleton, CircularProgress } from '@mui/material';
-import axios from 'axios';
-// require('dotenv').config();
+import React, { useState } from "react";
+import {
+  TextField,
+  MenuItem,
+  Button,
+  Typography,
+  Grid,
+  Card,
+  CardContent,
+  CardMedia,
+  LinearProgress,
+  Box,
+  Skeleton,
+  CircularProgress,
+} from "@mui/material";
+import axios from "axios";
 
 const App = () => {
   const [avatar, setAvatar] = useState({
-    gender: 'Male',
-    age: 'Baby',
-    skinTone: 'Fair',
-    hairColor: 'Brown',
-    hairStyle: 'Short',
-    eyeColor: 'Blue',
-    eyeShape: 'Almond',
-    eyebrows: 'Thick',
-    nose: 'Small',
-    mouth: 'Full',
-    clothingStyle: 'Hat',
+    gender: "Male",
+    age: "Baby",
+    skinTone: "Fair",
+    hairColor: "Brown",
+    hairStyle: "Short",
+    eyeColor: "Blue",
+    eyeShape: "Almond",
+    eyebrows: "Thick",
+    nose: "Small",
+    mouth: "Full",
+    clothingStyle: "Hat",
     personalityTraits: [],
-    petCompanion: ''
+    petCompanion: "",
   });
 
   const ApiKey = process.env.REACT_APP_API_KEY;
   const stabilityApiKey = process.env.REACT_APP_STABILITY_API_KEY;
 
-  const [theme, setTheme] = useState('Adventure');
-  const [format, setFormat] = useState('Ebook');
+  const [theme, setTheme] = useState("Adventure");
+  const [format, setFormat] = useState("Ebook");
   const [story, setStory] = useState([]);
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -34,11 +46,13 @@ const App = () => {
   };
 
   const handlePersonalityChange = (event) => {
-    const { target: { value } } = event;
+    const {
+      target: { value },
+    } = event;
     setAvatar((prevAvatar) => ({
       ...prevAvatar,
-      personalityTraits: typeof value === 'string' ? value.split(',') : value,
-    }))
+      personalityTraits: typeof value === "string" ? value.split(",") : value,
+    }));
   };
 
   const generateStory = async () => {
@@ -46,85 +60,99 @@ const App = () => {
     setProgress(0);
     setStory([]); // Clear previous story
     try {
-      const prompt = `Create a short children's story that is divided into 5 related parts. 
-        Each part should continue the previous one, forming a complete narrative. 
-        Write each part as a single sentence. The hero is ${avatar.gender}. The theme is ${theme}. Must separate all parts using @`;
+      const storyprompt = `Let's role play.
+      Create the short children's story. The hero's gender is ${avatar.gender} and age is ${avatar.age}. Story's theme is ${theme} and format is ${format}.
+      Create 5 more of these memories that continue this story in an interesting and engaging way.
+      It is important to write it in the character's tone of voice.
+      Do not mention the character's age.
+      Show me the next FIVE posts in json format as an array, nothing else:
+      {memories: [{
+      description: What would the character say about what is she doing? Written in third person. Extremely unique to the character's tone and personality
+      }]}`;
 
       // Call OpenAI GPT-4 API to generate story
       const storyResponse = await axios.post(
-        'https://api.openai.com/v1/chat/completions',
+        "https://api.openai.com/v1/chat/completions",
         {
-          model: "gpt-4",
+          model: "gpt-4o",
           messages: [
-            { role: "system", content: "You are a child's story generator" },
-            { role: "user", content: prompt }
+            { role: "system", content: storyprompt },
           ],
+          response_format: { type: "json_object" },
         },
         {
           headers: {
-            'Authorization': `Bearer ${ApiKey}`,
-            'Content-Type': 'application/json'
-          }
+            Authorization: `Bearer ${ApiKey}`,
+            "Content-Type": "application/json",
+          },
         }
       );
 
+      const sentences = JSON.parse(storyResponse.data.choices[0].message.content);
+      // console.log(sentences);
 
-      console.log(storyResponse.data.choices[0].message.content);
-      const sentences = storyResponse.data.choices[0].message.content.split("@").filter(line => line.trim() !== "");
-      
-      // Step 2: Generate the images using DALL-E
-      const engineId = 'stable-diffusion-v1-6';
-      const url = `https://api.stability.ai/v1/generation/${engineId}/text-to-image`;
+      const seed = Math.floor(Math.random()* 1000000);
 
-      const headers = {
-        'Authorization': `Bearer ${stabilityApiKey}`,
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      };
+      // Use for...of loop instead of map to handle asynchronous operations
+      for (const [index, i] of sentences.memories.entries()) {
+        const payload = {
+          prompt: `
+          
+          Story Background: ${i.description}
 
-      for (const [index, sentence] of sentences.entries()) {
-        // console.log(avatar)
-        const data = {
-          text_prompts: [
-            {
-              text: `Genereat an image for the following story segment: ${sentence}. The image's main character has ${avatar.gender} gender, ${avatar.age} age, ${avatar.hairStyle} hair style, ${avatar.eyeColor} eye color, ${avatar.eyeShape} eyes, ${avatar .eyebrows} eyes, ${avatar.nose} nose size, and ${avatar.mouth} mouth. ${avatar.petCompanion === '' ? '' : `The child has a ${avatar.petCompanion}`} and ${avatar.personalityTraits.join(', ') === '' ? '' : `is ${avatar.personalityTraits.join(', ')}.`} The format is ${format}. All characters in the story must be the same.`,
-              weight: 1.0
-            }
-          ],
-          cfg_scale: 7.0,
-          clip_guidance_preset: 'FAST_BLUE',
-          height: 512,
-          width: 512,
-          samples: 1,
-          steps: 50
+          Character Description:
+          Create an image of the main character in story with the following details:
+
+          Gender: ${avatar.gender}
+          Age: ${avatar.age}
+          Hair: ${avatar.hairStyle} in ${avatar.hairColor}
+          Eyes: ${avatar.eyeColor} color with ${avatar.eyeShape} shape and ${avatar.eyebrows} eyebrows
+          Clothing Style: ${avatar.clothingStyle}
+          Nose Size: ${avatar.nose}
+          Mouth: ${avatar.mouth}
+          Additionally, if the character has a pet companion, include a ${avatar.petCompanion}. The character’s personality traits are ${avatar.personalityTraits.join(", ")}, if provided.
+
+          Ensure that the character is consistent throughout the story and that the image is vivid and detailed.`,
+          seed: seed,
+          output_format: "jpeg"
         };
 
-        // console.log(data)
+        const response = await axios.postForm(
+          `https://api.stability.ai/v2beta/stable-image/generate/sd3`,
+          axios.toFormData(payload, new FormData()),
+          {
+            validateStatus: undefined,
+            responseType: "arraybuffer",
+            headers: {
+              Authorization: `Bearer ${stabilityApiKey}`,
+              Accept: "image/*"
+            },
+          },
+        );
 
-        // Show skeleton while loading
-        setStory((prevStory) => [
-          ...prevStory,
-          { text: sentence, image: null }
-        ]);
-
-        const dalleResponse = await axios.post(url, data, { headers });
-
-        if (dalleResponse.data.artifacts && dalleResponse.data.artifacts.length > 0) {
-          const imageDataBase64 = dalleResponse.data.artifacts[0].base64;
+        if (response.status === 200) {
+          const imageDataBase64 = btoa(
+            new Uint8Array(response.data).reduce(
+              (data, byte) => data + String.fromCharCode(byte),
+              ''
+            )
+          );
 
           // Update story with each new image
           setStory((prevStory) => {
             const updatedStory = [...prevStory];
-            updatedStory[index] = { text: sentence, image: imageDataBase64 };
+            updatedStory[index] = { text: i.description, image: imageDataBase64 };
             return updatedStory;
           });
 
           // Incrementally update progress
-          setProgress(((index + 1) / sentences.length) * 100);
+          setProgress(((index + 1) / sentences.memories.length) * 100);
+        } else {
+          console.error(`Error generating image: ${response.status}: ${response.data.toString()}`);
         }
       }
     } catch (error) {
-      console.error('Error generating story:', error);
+      console.error("Error generating story:", error);
     } finally {
       setLoading(false);
     }
@@ -133,19 +161,39 @@ const App = () => {
   const imageHeight = 512; // Set a consistent height for images and skeletons
 
   return (
-    <div style={{ padding: '20px' }}>
-      <Typography variant="h4" gutterBottom>Create Your Own Story</Typography>
-      <Typography variant="h5" gutterBottom>Avatar</Typography>
+    <div style={{ padding: "20px" }}>
+      <Typography variant="h4" gutterBottom>
+        Create Your Own Story
+      </Typography>
+      <Typography variant="h5" gutterBottom>
+        Avatar
+      </Typography>
       <Grid container spacing={2}>
         <Grid item xs={12} md={6} lg={4}>
-          <TextField label="Gender" name="gender" value={avatar.gender} onChange={handleChange} select fullWidth margin="normal">
+          <TextField
+            label="Gender"
+            name="gender"
+            value={avatar.gender}
+            onChange={handleChange}
+            select
+            fullWidth
+            margin="normal"
+          >
             <MenuItem value="Male">Male</MenuItem>
             <MenuItem value="Female">Female</MenuItem>
             <MenuItem value="Non-Binary">Non-Binary</MenuItem>
           </TextField>
         </Grid>
         <Grid item xs={12} md={6} lg={4}>
-          <TextField label="Age" name="age" value={avatar.age} onChange={handleChange} select fullWidth margin="normal">
+          <TextField
+            label="Age"
+            name="age"
+            value={avatar.age}
+            onChange={handleChange}
+            select
+            fullWidth
+            margin="normal"
+          >
             <MenuItem value="Baby">Baby</MenuItem>
             <MenuItem value="Toddler">Toddler</MenuItem>
             <MenuItem value="Child">Child</MenuItem>
@@ -155,7 +203,15 @@ const App = () => {
           </TextField>
         </Grid>
         <Grid item xs={12} md={6} lg={4}>
-          <TextField label="Skin Tone" name="skinTone" value={avatar.skinTone} onChange={handleChange} select fullWidth margin="normal">
+          <TextField
+            label="Skin Tone"
+            name="skinTone"
+            value={avatar.skinTone}
+            onChange={handleChange}
+            select
+            fullWidth
+            margin="normal"
+          >
             <MenuItem value="Fair">Fair</MenuItem>
             <MenuItem value="Light">Light</MenuItem>
             <MenuItem value="Medium">Medium</MenuItem>
@@ -165,7 +221,15 @@ const App = () => {
           </TextField>
         </Grid>
         <Grid item xs={12} md={6} lg={4}>
-          <TextField label="Hair Color" name="hairColor" value={avatar.hairColor} onChange={handleChange} select fullWidth margin="normal">
+          <TextField
+            label="Hair Color"
+            name="hairColor"
+            value={avatar.hairColor}
+            onChange={handleChange}
+            select
+            fullWidth
+            margin="normal"
+          >
             <MenuItem value="Brown">Brown</MenuItem>
             <MenuItem value="Blonde">Blonde</MenuItem>
             <MenuItem value="Black">Black</MenuItem>
@@ -174,7 +238,15 @@ const App = () => {
           </TextField>
         </Grid>
         <Grid item xs={12} md={6} lg={4}>
-          <TextField label="Hair Style" name="hairStyle" value={avatar.hairStyle} onChange={handleChange} select fullWidth margin="normal">
+          <TextField
+            label="Hair Style"
+            name="hairStyle"
+            value={avatar.hairStyle}
+            onChange={handleChange}
+            select
+            fullWidth
+            margin="normal"
+          >
             <MenuItem value="Short">Short</MenuItem>
             <MenuItem value="Medium">Medium</MenuItem>
             <MenuItem value="Long">Long</MenuItem>
@@ -183,7 +255,15 @@ const App = () => {
           </TextField>
         </Grid>
         <Grid item xs={12} md={6} lg={4}>
-          <TextField label="Eye Color" name="eyeColor" value={avatar.eyeColor} onChange={handleChange} select fullWidth margin="normal">
+          <TextField
+            label="Eye Color"
+            name="eyeColor"
+            value={avatar.eyeColor}
+            onChange={handleChange}
+            select
+            fullWidth
+            margin="normal"
+          >
             <MenuItem value="Blue">Blue</MenuItem>
             <MenuItem value="Green">Green</MenuItem>
             <MenuItem value="Brown">Brown</MenuItem>
@@ -191,13 +271,29 @@ const App = () => {
           </TextField>
         </Grid>
         <Grid item xs={12} md={6} lg={4}>
-          <TextField label="Eye Shape" name="eyeShape" value={avatar.eyeShape} onChange={handleChange} select fullWidth margin="normal">
+          <TextField
+            label="Eye Shape"
+            name="eyeShape"
+            value={avatar.eyeShape}
+            onChange={handleChange}
+            select
+            fullWidth
+            margin="normal"
+          >
             <MenuItem value="Almond">Almond</MenuItem>
             <MenuItem value="Round">Round</MenuItem>
           </TextField>
         </Grid>
         <Grid item xs={12} md={6} lg={4}>
-          <TextField label="EyeBrows" name="eyebrows" value={avatar.eyebrows} onChange={handleChange} select fullWidth margin="normal">
+          <TextField
+            label="EyeBrows"
+            name="eyebrows"
+            value={avatar.eyebrows}
+            onChange={handleChange}
+            select
+            fullWidth
+            margin="normal"
+          >
             <MenuItem value="Thick">Thick</MenuItem>
             <MenuItem value="Thin">Thin</MenuItem>
             <MenuItem value="Arched">Arched</MenuItem>
@@ -205,7 +301,15 @@ const App = () => {
           </TextField>
         </Grid>
         <Grid item xs={12} md={6} lg={4}>
-          <TextField label="Nose" name="nose" value={avatar.nose} onChange={handleChange} select fullWidth margin="normal">
+          <TextField
+            label="Nose"
+            name="nose"
+            value={avatar.nose}
+            onChange={handleChange}
+            select
+            fullWidth
+            margin="normal"
+          >
             <MenuItem value="Small">Small</MenuItem>
             <MenuItem value="Med">Med</MenuItem>
             <MenuItem value="Large">Large</MenuItem>
@@ -214,14 +318,30 @@ const App = () => {
           </TextField>
         </Grid>
         <Grid item xs={12} md={6} lg={4}>
-          <TextField label="Mouth" name="mouth" value={avatar.mouth} onChange={handleChange} select fullWidth margin="normal">
+          <TextField
+            label="Mouth"
+            name="mouth"
+            value={avatar.mouth}
+            onChange={handleChange}
+            select
+            fullWidth
+            margin="normal"
+          >
             <MenuItem value="Full">Full</MenuItem>
             <MenuItem value="Thin">Thin</MenuItem>
             <MenuItem value="Wide">Wide</MenuItem>
           </TextField>
         </Grid>
         <Grid item xs={12} md={6} lg={4}>
-          <TextField label="Clothing Style" name="clothingStyle" value={avatar.clothingStyle} onChange={handleChange} select fullWidth margin="normal">
+          <TextField
+            label="Clothing Style"
+            name="clothingStyle"
+            value={avatar.clothingStyle}
+            onChange={handleChange}
+            select
+            fullWidth
+            margin="normal"
+          >
             <MenuItem value="Hat">Hat</MenuItem>
             <MenuItem value="Top">Top</MenuItem>
             <MenuItem value="Bottoms">Bottoms</MenuItem>
@@ -229,7 +349,15 @@ const App = () => {
           </TextField>
         </Grid>
         <Grid item xs={12} md={6} lg={4}>
-          <TextField label="Pet Companion" name="petCompanion" value={avatar.petCompanion} onChange={handleChange} select fullWidth margin="normal">
+          <TextField
+            label="Pet Companion"
+            name="petCompanion"
+            value={avatar.petCompanion}
+            onChange={handleChange}
+            select
+            fullWidth
+            margin="normal"
+          >
             <MenuItem value="Dog">Dog</MenuItem>
             <MenuItem value="Cat">Cat</MenuItem>
             <MenuItem value="Bird">Bird</MenuItem>
@@ -261,22 +389,41 @@ const App = () => {
       </Grid>
 
       <hr />
-      <Typography variant="h5" gutterBottom>Themes</Typography>
+      <Typography variant="h5" gutterBottom>
+        Themes
+      </Typography>
       <Grid container spacing={2}>
         <Grid item xs={12} md={6} lg={4}>
-          <TextField label="Theme" name="theme" value={theme} onChange={(e) => setTheme(e.target.value)} select fullWidth margin="normal">
+          <TextField
+            label="Theme"
+            name="theme"
+            value={theme}
+            onChange={(e) => setTheme(e.target.value)}
+            select
+            fullWidth
+            margin="normal"
+          >
             <MenuItem value="Adventure">Adventure</MenuItem>
             <MenuItem value="Magic">Magic</MenuItem>
           </TextField>
         </Grid>
       </Grid>
 
-
       <hr />
-      <Typography variant="h5" gutterBottom>Format</Typography>
+      <Typography variant="h5" gutterBottom>
+        Format
+      </Typography>
       <Grid container spacing={2}>
         <Grid item xs={12} md={6} lg={4}>
-          <TextField label="Story Format" name="format" value={format} onChange={(e) => setFormat(e.target.value)} select fullWidth margin="normal">
+          <TextField
+            label="Story Format"
+            name="format"
+            value={format}
+            onChange={(e) => setFormat(e.target.value)}
+            select
+            fullWidth
+            margin="normal"
+          >
             <MenuItem value="Illustrated">Illustrated</MenuItem>
             <MenuItem value="Audiobook">Audiobook</MenuItem>
             <MenuItem value="Ebook">Ebook</MenuItem>
@@ -286,19 +433,22 @@ const App = () => {
       <hr />
       <br />
       <Grid container spacing={2} justifyContent={"center"}>
-        <Grid item xs={12} md={6} lg={6} >
-          <Button variant="contained" color="primary" onClick={generateStory} disabled={loading} fullWidth>
+        <Grid item xs={12} md={6} lg={6}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={generateStory}
+            disabled={loading}
+            fullWidth
+          >
             Generate Story
           </Button>
         </Grid>
       </Grid>
 
-
-
-
       {/* Loading Bar */}
       {loading && (
-        <Box sx={{ width: '100%', mt: 2 }}>
+        <Box sx={{ width: "100%", mt: 2 }}>
           <LinearProgress variant="determinate" value={progress} />
           <Typography variant="body2" color="textSecondary" align="center">
             Generating Images: {Math.round(progress / 20)} / 5
@@ -307,11 +457,11 @@ const App = () => {
       )}
 
       {/* Story Rendering */}
-      <div style={{ marginTop: '20px' }}>
+      <div style={{ marginTop: "20px" }}>
         <Grid container spacing={2}>
           {story.map((item, index) => (
             <Grid item xs={12} sm={12} md={6} lg={4} key={index}>
-              <Card sx={{ position: 'relative' }}>
+              <Card sx={{ position: "relative" }}>
                 {item.image ? (
                   <CardMedia
                     component="img"
@@ -320,14 +470,24 @@ const App = () => {
                     sx={{ height: imageHeight }}
                   />
                 ) : (
-                  <Box sx={{ position: 'relative', width: '100%', height: imageHeight }}>
-                    <Skeleton variant="rectangular" width="100%" height="100%" />
+                  <Box
+                    sx={{
+                      position: "relative",
+                      width: "100%",
+                      height: imageHeight,
+                    }}
+                  >
+                    <Skeleton
+                      variant="rectangular"
+                      width="100%"
+                      height="100%"
+                    />
                     <CircularProgress
                       sx={{
-                        position: 'absolute',
-                        top: '50%',
-                        left: '50%',
-                        transform: 'translate(-50%, -50%)',
+                        position: "absolute",
+                        top: "50%",
+                        left: "50%",
+                        transform: "translate(-50%, -50%)",
                       }}
                     />
                   </Box>
