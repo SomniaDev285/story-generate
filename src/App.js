@@ -87,7 +87,7 @@ const App = () => {
         const data = {
           text_prompts: [
             {
-              text: `Create an image for the following story segment: ${sentence} and  gender is ${avatar.gender} and ${avatar.age} old with ${avatar.hairColor} hair styled ${avatar.hairStyle}, ${avatar.eyeColor}, ${avatar.eyeShape}, ${avatar.eyebrows} eyes, and wearing ${avatar.clothingStyle} and nose size is ${avatar.nose} and mouth is ${avatar.mouth}. ${avatar.petCompanion === '' ? '' : `The child has a ${avatar.petCompanion}`}and ${avatar.personalityTraits.join(', ') === '' ? '' : `is ${avatar.personalityTraits.join(', ')}.`} Format is ${format}. Character in story have to be all same.`,
+              text: `Genereat an image for the following story segment: ${sentence}. The image's main character has ${avatar.gender} gender, ${avatar.age} age, ${avatar.hairStyle} hair style, ${avatar.eyeColor} eye color, ${avatar.eyeShape} eyes, ${avatar .eyebrows} eyes, ${avatar.nose} nose size, and ${avatar.mouth} mouth. ${avatar.petCompanion === '' ? '' : `The child has a ${avatar.petCompanion}`} and ${avatar.personalityTraits.join(', ') === '' ? '' : `is ${avatar.personalityTraits.join(', ')}.`} The format is ${format}. All characters in the story must be the same.`,
               weight: 1.0
             }
           ],
