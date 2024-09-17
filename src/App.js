@@ -64,7 +64,7 @@ const App = () => {
       Create the short children's story. The hero's gender is ${avatar.gender} and age is ${avatar.age}. Story's theme is ${theme} and format is ${format}.
       Create 5 more of these memories that continue this story in an interesting and engaging way.
       It is important to write it in the character's tone of voice.
-      Do not mention the character's age.
+      Don't include anything age related.
       Show me the next FIVE posts in json format as an array, nothing else:
       {memories: [{
       description: What would the character say about what is she doing? Written in third person. Extremely unique to the character's tone and personality
