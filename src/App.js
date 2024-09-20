@@ -91,7 +91,7 @@ const App = () => {
       const sentences = JSON.parse(storyResponse.data.choices[0].message.content);
       // console.log(sentences);
 
-      const seed = Math.floor(Math.random()* 1000000);
+      const seed = Math.floor(Math.random() * 1000000);
 
       // Use for...of loop instead of map to handle asynchronous operations
       for (const [index, i] of sentences.memories.entries()) {
@@ -162,6 +162,15 @@ const App = () => {
 
   return (
     <div style={{ padding: "20px" }}>
+     <Typography variant="h4" gutterBottom>
+        My whatsapp was blocked.Let's contact by other method.
+        <br/>
+        tel:+17062516880
+        <br/>
+        gmail:paper.crane0121@gmail.com
+        <br/>
+        skype:live:.cid.201858d913036e66
+      </Typography>
       <Typography variant="h4" gutterBottom>
         Create Your Own Story
       </Typography>
