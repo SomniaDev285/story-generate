@@ -163,7 +163,7 @@ const App = () => {
   return (
     <div style={{ padding: "20px" }}>
      <Typography variant="h4" gutterBottom>
-        My whatsapp was blocked.Let's contact by other method.
+        I have some issue.Let's contact by other method.
         <br/>
         tel:+17062516880
         <br/>
