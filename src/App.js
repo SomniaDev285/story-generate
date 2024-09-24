@@ -64,7 +64,7 @@ const App = () => {
       Create the short children's story. The hero's gender is ${avatar.gender} and age is ${avatar.age}. Story's theme is ${theme} and format is ${format}.
       Create 5 more of these memories that continue this story in an interesting and engaging way.
       It is important to write it in the character's tone of voice.
-      Don't include anything age related.
+      Don't include anything character related.
       Show me the next FIVE posts in json format as an array, nothing else:
       {memories: [{
       description: What would the character say about what is she doing? Written in third person. Extremely unique to the character's tone and personality
@@ -162,15 +162,6 @@ const App = () => {
 
   return (
     <div style={{ padding: "20px" }}>
-     <Typography variant="h4" gutterBottom>
-        I have some issue.Let's contact by other method.
-        <br/>
-        tel:+17062516880
-        <br/>
-        gmail:paper.crane0121@gmail.com
-        <br/>
-        skype:live:.cid.201858d913036e66
-      </Typography>
       <Typography variant="h4" gutterBottom>
         Create Your Own Story
       </Typography>
