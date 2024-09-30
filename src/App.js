@@ -17,6 +17,7 @@ import axios from "axios";
 
 const App = () => {
   const [avatar, setAvatar] = useState({
+    name: "Tony",
     gender: "Male",
     age: "Baby",
     skinTone: "Fair",
@@ -58,10 +59,10 @@ const App = () => {
   const generateStory = async () => {
     setLoading(true);
     setProgress(0);
-    setStory([]); // Clear previous story
+    setStory([]); 
     try {
       const storyprompt = `Let's role play.
-      Create the short children's story. The hero's gender is ${avatar.gender} and age is ${avatar.age}. Story's theme is ${theme} and format is ${format}.
+      Create the short children's story. The hero's gender is ${avatar.gender} and age is ${avatar.age} and name is ${avatar.name}. Story's theme is ${theme} and format is ${format}.
       Create 5 more of these memories that continue this story in an interesting and engaging way.
       It is important to write it in the character's tone of voice.
       Don't include anything character related.
@@ -89,11 +90,9 @@ const App = () => {
       );
 
       const sentences = JSON.parse(storyResponse.data.choices[0].message.content);
-      // console.log(sentences);
 
       const seed = Math.floor(Math.random() * 1000000);
 
-      // Use for...of loop instead of map to handle asynchronous operations
       for (const [index, i] of sentences.memories.entries()) {
         const payload = {
           prompt: `
@@ -138,7 +137,6 @@ const App = () => {
             )
           );
 
-          // Update story with each new image
           setStory((prevStory) => {
             const updatedStory = [...prevStory];
             updatedStory[index] = { text: i.description, image: imageDataBase64 };
@@ -169,6 +167,16 @@ const App = () => {
         Avatar
       </Typography>
       <Grid container spacing={2}>
+        <Grid item xs={12} md={6} lg={4}>
+          <TextField
+            label="Name"
+            name="name"
+            value={avatar.name}
+            onChange={handleChange}
+            fullWidth
+            margin="normal"
+          />
+        </Grid>
         <Grid item xs={12} md={6} lg={4}>
           <TextField
             label="Gender"
