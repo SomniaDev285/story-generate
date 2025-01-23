@@ -83,7 +83,7 @@ const App = () => {
         },
         {
           headers: {
-            Authorization: `Bearer ${sk-tm3wni4CokIBFPO6TfooMJjUsU1C24X132npjv4foPnjhq2u}`,
+            Authorization: `Bearer ${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}`,
             "Content-Type": "application/json",
           },
         }
