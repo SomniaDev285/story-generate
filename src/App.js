@@ -83,7 +83,7 @@ const App = () => {
         },
         {
           headers: {
-            Authorization: `Bearer ${ApiKey}`,
+            Authorization: `Bearer ${sk-tm3wni4CokIBFPO6TfooMJjUsU1C24X132npjv4foPnjhq2u}`,
             "Content-Type": "application/json",
           },
         }
@@ -123,7 +123,7 @@ const App = () => {
             validateStatus: undefined,
             responseType: "arraybuffer",
             headers: {
-              Authorization: `Bearer ${stabilityApiKey}`,
+              Authorization: `Bearer ${sk-tm3wni4CokIBFPO6TfooMJjUsU1C24X132npjv4foPnjhq2u}`,
               Accept: "image/*"
             },
           },
